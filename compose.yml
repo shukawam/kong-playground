@@ -1,0 +1,42 @@
+x-default-policy: &default-policy
+  networks:
+      - kong-net
+
+services:
+  api:
+    <<: *default-policy
+    build:
+      context: api
+      dockerfile: Dockerfile
+    container_name: api
+    hostname: api.shukawam.me
+    ports:
+      - 8080:8080
+  kong-dbless:
+    <<: *default-policy
+    image: kong/kong-gateway:3.10.0.1
+    container_name: kong-dbless
+    ports:
+      - 8000:8000 # Gateway
+      - 8443:8443
+      - 8001:8001 # Admin API
+      - 8444:8444
+      - 8002:8002 # Admin GUI
+      - 8445:8445
+      - 8003:8003
+      - 8004:8004
+    environment:
+      - KONG_DATABASE=off
+      - KONG_DECLARATIVE_CONFIG=/kong/declarative/kong.yml
+      - KONG_PROXY_ACCESS_LOG=/dev/stdout
+      - KONG_ADMIN_ACCESS_LOG=/dev/stdout
+      - KONG_PROXY_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_LISTEN=0.0.0.0:8001
+      - KONG_ADMIN_GUI_URL=http://localhost:8002
+    volumes:
+      - ./config:/kong/declarative
+
+networks:
+  kong-net:
+    external: false
