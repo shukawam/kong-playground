@@ -6,7 +6,7 @@ services:
   api:
     <<: *default-policy
     build:
-      context: api
+      context: ../api
       dockerfile: Dockerfile
     container_name: api
     hostname: api.shukawam.me
